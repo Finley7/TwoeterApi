@@ -10,12 +10,12 @@ namespace TwoeterApi.Middleware;
 
 public static class Authentication
 {
-    public static bool IsAuthenticated(HttpRequest request)
+    private static bool IsAuthenticated(HttpRequest request)
     {
         return request.Headers["Authorization"].ToString() != "";
     }
 
-    public static int GetUser(HttpRequest request)
+    public static Guid GetUser(HttpRequest request)
     {
         if (!IsAuthenticated(request))
         {
@@ -23,20 +23,24 @@ public static class Authentication
         }
 
         var jwtTokenEncoded = request.Headers["Authorization"].ToString();
-        string jwtTokenDecoded;
-        JWTToken token;
+        JWTToken? token;
         
         try
         {
-            jwtTokenDecoded = JWT.Decode(jwtTokenEncoded, Encoding.UTF8.GetBytes("mYq3t6v9y$B&E)H@McQfTjWnZr4u7x!z"));
+            var jwtTokenDecoded = JWT.Decode(jwtTokenEncoded, Encoding.UTF8.GetBytes("mYq3t6v9y$B&E)H@McQfTjWnZr4u7x!z"));
             token = JsonSerializer.Deserialize<JWTToken>(jwtTokenDecoded);
+
+            using var db = new TwoeterContext();
+            var u = db.Users.Find(token!.user.id);
+
+            if (u.TokenCreated != token.created) throw new NotAuthenticatedException();
         }
         catch (JsonException e)
         {
             throw new NotAuthenticatedException();
         }
 
-        return token.user.id;
+        return token!.user.id;
 
     }
 }

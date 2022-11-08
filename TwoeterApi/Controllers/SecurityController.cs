@@ -23,6 +23,8 @@ namespace TwoeterApi.Controllers
         public ActionResult Login(LoginRequest loginRequest)
         {
             User? user;
+            DateTime now = DateTime.Now;
+            
             try
             {
                 user = _userRepository.Login(loginRequest.UserName, loginRequest.Password);
@@ -31,21 +33,27 @@ namespace TwoeterApi.Controllers
             {
                 return StatusCode(403, new ErrorResponse() { Code = 403, Message = "Invalid data" });
             }
-            
-            var payload = new Dictionary<string, object>()
+
+            var payload = new JWTToken()
             {
-                { "user", user }
+                user = new UserJwtToken()
+                {
+                    id = user.Id,
+                    username = $"{user.FirstName} {user.LastName}"
+                },
+                created = now
             };
 
             var token = Jose.JWT.Encode(payload, Encoding.UTF8.GetBytes("mYq3t6v9y$B&E)H@McQfTjWnZr4u7x!z"), Jose.JwsAlgorithm.HS256);
 
             user.LastLogin = DateTime.Now;
+            user.TokenCreated = now;
 
             _userRepository.Update(user);
 
             return StatusCode(201, new Response<LoginResponse>()
             {
-                Code = 200,
+                Code = 201,
                 Message = "Login success",
                 Data = new LoginResponse()
                 {

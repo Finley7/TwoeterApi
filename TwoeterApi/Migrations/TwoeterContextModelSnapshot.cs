@@ -21,12 +21,12 @@ namespace TwoeterApi.Migrations
 
             modelBuilder.Entity("TwoeterApi.Model.Entity.Post", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("Body")
                         .IsRequired()
@@ -38,8 +38,8 @@ namespace TwoeterApi.Migrations
                     b.Property<DateTime?>("Deleted")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("DeletedById")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("DeletedById")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("Edited")
                         .HasColumnType("datetime(6)");
@@ -55,9 +55,9 @@ namespace TwoeterApi.Migrations
 
             modelBuilder.Entity("TwoeterApi.Model.Entity.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
@@ -79,6 +79,9 @@ namespace TwoeterApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime?>("TokenCreated")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -86,6 +89,30 @@ namespace TwoeterApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TwoeterApi.Model.Entity.UserFollow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("FollowerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("FollowingId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FollowerId");
+
+                    b.HasIndex("FollowingId");
+
+                    b.ToTable("UserFollow");
                 });
 
             modelBuilder.Entity("TwoeterApi.Model.Entity.Post", b =>
@@ -105,9 +132,32 @@ namespace TwoeterApi.Migrations
                     b.Navigation("DeletedBy");
                 });
 
+            modelBuilder.Entity("TwoeterApi.Model.Entity.UserFollow", b =>
+                {
+                    b.HasOne("TwoeterApi.Model.Entity.User", "Follower")
+                        .WithMany("Following")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TwoeterApi.Model.Entity.User", "Following")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
+                });
+
             modelBuilder.Entity("TwoeterApi.Model.Entity.User", b =>
                 {
                     b.Navigation("DeletedPosts");
+
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
 
                     b.Navigation("Posts");
                 });

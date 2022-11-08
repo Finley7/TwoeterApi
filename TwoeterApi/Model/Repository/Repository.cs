@@ -6,7 +6,7 @@ namespace TwoeterApi.Model.Repository
 {
     public class Repository : IRepository
     {
-        public static readonly TwoeterContext Db = new();
+        protected static readonly TwoeterContext Db = new();
         public void Create<T>(T entity) where T : class
         {
             Db.Set<T>().Add(entity);
