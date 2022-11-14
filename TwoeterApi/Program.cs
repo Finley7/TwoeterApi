@@ -14,17 +14,17 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 });
 
-var corsOrigin = "_myAllowSpecificOrigins";
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(corsOrigin, policy =>
+    options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://twoeter-app.test")
+        policy
             .AllowAnyHeader()
+            .AllowAnyOrigin()
             .AllowAnyMethod();
     });
 });
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -43,7 +43,15 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseCors();
+app.UseHttpLogging();
+
+app.UseCors(builder =>
+{
+    builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+});
 
 app.MapControllers();
 

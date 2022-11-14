@@ -15,7 +15,7 @@ namespace TwoeterApi
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder
-                    .UseMySql("server=localhost;user=root;password=root123;database=twoeterdb",
+                    .UseMySql("server=localhost;user=root;database=twoeter_db",
                         ServerVersion.Parse("5.7.33-mysql"))
                     .LogTo(Console.WriteLine, LogLevel.Warning);
             }

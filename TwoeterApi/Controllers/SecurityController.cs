@@ -19,7 +19,7 @@ namespace TwoeterApi.Controllers
             _userRepository = userRepository;
         }
         
-        [HttpPost("/login")]
+        [HttpPost("/api/login")]
         public ActionResult Login(LoginRequest loginRequest)
         {
             User? user;
@@ -39,7 +39,7 @@ namespace TwoeterApi.Controllers
                 user = new UserJwtToken()
                 {
                     id = user.Id,
-                    username = $"{user.FirstName} {user.LastName}"
+                    username = user.Username
                 },
                 created = now
             };
@@ -62,7 +62,7 @@ namespace TwoeterApi.Controllers
             });
         }
 
-        [HttpPost("/register")]
+        [HttpPost("/api/register")]
         public ActionResult Create(RegisterRequest registerRequest)
         {
             if (_userRepository.CheckUsername(registerRequest.UserName) != null || _userRepository.CheckEmail(registerRequest.Email) != null)
